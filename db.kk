@@ -160,9 +160,7 @@ fun foreach(
   action : () -> <db-context<s>,statement-view,div|e> a
 ) : <db-context<s>,div|e> ()
   with finally
-    val ret = stmt.statement.c-reset()
-    if ret.int != 0 then
-      throw-db-error(ret)
+    stmt.statement.c-reset().check-ret
   fun rep()
     val ret = c-step(stmt.statement)
     match ret.int
