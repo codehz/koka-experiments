@@ -99,7 +99,7 @@ alias db-context<s::S> = <db-instance<s>,db>
 named effect statement<s::S> in db-instance<s>
   fun statement() : intptr_t
 
-effect statement-view
+scoped effect statement-view<s::S>
   val statement-view : intptr_t
 
 inline fun unsafe-db-context(raw : intptr_t, action : forall<s::S> () -> <db-context<s>|e> a) : <db|e> a
@@ -157,7 +157,7 @@ fun [](stmt : statement<s>, idx : int, value : string) : <db-context<s>,div> ()
 
 fun foreach(
   stmt   : statement<s>,
-  action : () -> <db-context<s>,statement-view,div|e> a
+  action : forall<r::S> () -> <db-context<s>,statement-view<r>,div|e> a
 ) : <db-context<s>,div|e> ()
   with finally
     stmt.statement.c-reset().check-ret
@@ -171,11 +171,11 @@ fun foreach(
       _   -> throw-db-error(ret)
   rep()
 
-fun column-int(idx : int)    : <statement-view,db-noexn> int
+fun column-int(idx : int)    : <statement-view<s>,db-noexn> int
   statement-view.c-column-int(idx.int32).int
 
-fun column-double(idx : int) : <statement-view,db-noexn> double
+fun column-double(idx : int) : <statement-view<s>,db-noexn> double
   statement-view.c-column-double(idx.int32)
 
-fun column-string(idx : int) : <statement-view,db-noexn> string
+fun column-string(idx : int) : <statement-view<s>,db-noexn> string
   statement-view.c-column-string(idx.int32)
